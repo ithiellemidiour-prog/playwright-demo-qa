@@ -1,0 +1,16 @@
+{
+  "name": "playwright-demo-qa",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Démonstration de tests E2E et API avec Playwright, sur des sites publics prévus pour l'entraînement.",
+  "scripts": {
+    "test": "playwright test",
+    "test:e2e": "playwright test --project=chromium --project=firefox --project=webkit",
+    "test:api": "playwright test --project=api",
+    "rapport": "playwright show-report"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.65.0"
+  }
+}

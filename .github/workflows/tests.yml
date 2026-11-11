@@ -1,0 +1,48 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Chaque lundi à 6 h UTC : vérifie que la suite reste verte sans changement de code.
+    - cron: '0 6 * * 1'
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: ${{ matrix.projet }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        projet: [chromium, firefox, webkit, api]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Installer le navigateur
+        if: matrix.projet != 'api'
+        run: npx playwright install --with-deps ${{ matrix.projet }}
+
+      - name: Lancer les tests
+        run: npx playwright test --project=${{ matrix.projet }}
+
+      - name: Publier le rapport
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapport-${{ matrix.projet }}
+          path: playwright-report/
+          retention-days: 14
